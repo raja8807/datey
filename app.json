@@ -21,7 +21,11 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,7 +37,18 @@
           "photosPermission": "The app accesses your photos to let you share them."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "dff218e7-b4cb-4455-8bf3-43831475553d"
+      }
+    },
+    "owner": "reyo_dev",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/dff218e7-b4cb-4455-8bf3-43831475553d"
+    }
   }
 }
-
