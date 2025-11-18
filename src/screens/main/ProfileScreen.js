@@ -1,22 +1,35 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
-import { currentUser } from '../../data/users';
-import { colors } from '../../styles/colors';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { currentUser } from "../../data/users";
+import { colors } from "../../styles/colors";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ProfileScreen({ navigation }) {
+  const { session, logout } = useAuth();
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.photoContainer}>
           {currentUser.photos.length > 0 ? (
-            <Image source={{ uri: currentUser.photos[0] }} style={styles.photo} />
+            <Image
+              source={{ uri: currentUser.photos[0] }}
+              style={styles.photo}
+            />
           ) : (
             <View style={styles.photoPlaceholder}>
               <Text style={styles.photoPlaceholderText}>📷</Text>
             </View>
           )}
         </View>
-        <Text style={styles.name}>{currentUser.name}</Text>
+        <Text style={styles.name}>{session?.user?.name}</Text>
         <Text style={styles.age}>{currentUser.age} years old</Text>
       </View>
 
@@ -41,7 +54,9 @@ export default function ProfileScreen({ navigation }) {
         onPress={() => {}}
         activeOpacity={0.8}
       >
-        <Text style={styles.editButtonText}>Edit Profile</Text>
+        <Text style={styles.editButtonText} onPress={logout}>
+          Logout
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -54,7 +69,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   header: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 32,
     backgroundColor: colors.white,
     borderBottomWidth: 1,
@@ -73,15 +88,15 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     backgroundColor: colors.backgroundDark,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   photoPlaceholderText: {
     fontSize: 48,
   },
   name: {
     fontSize: 28,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginBottom: 4,
   },
@@ -99,7 +114,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginBottom: 12,
   },
@@ -109,8 +124,8 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
   interestsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
   },
   interestTag: {
@@ -124,19 +139,18 @@ const styles = StyleSheet.create({
   interestText: {
     fontSize: 14,
     color: colors.white,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   editButton: {
     backgroundColor: colors.primary,
     margin: 20,
     paddingVertical: 16,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   editButtonText: {
     color: colors.white,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
-

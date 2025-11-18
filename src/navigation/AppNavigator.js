@@ -1,45 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import AuthNavigator from './AuthNavigator';
-import ProfileSetupNavigator from './ProfileSetupNavigator';
-import MainNavigator from './MainNavigator';
+import React from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import AuthNavigator from "./AuthNavigator";
+import ProfileSetupNavigator from "./ProfileSetupNavigator";
+import MainNavigator from "./MainNavigator";
+import { useAuth } from "../context/AuthContext";
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  // In a real app, this would check authentication state
-  // For demo purposes, we'll start with Auth flow
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isProfileComplete, setIsProfileComplete] = useState(false);
+  const { session } = useAuth();
 
-  // For demo: Start with auth, then profile setup, then main app
-  // You can change these to true to skip directly to main app
-
-  const getInitialRouteName = () => {
-    if (isAuthenticated) {
-      if (isProfileComplete) {
-        return 'MainApp';
-      }
-      return 'ProfileSetup';
-    } else {
-      return 'Auth';
-    }
-  };
-
-  
+  const isAuthenticated = session?.authState === "authenticated";
+  const isProfileComplete = !!session?.user;
 
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-      initialRouteName={getInitialRouteName()}
-      
-    >
-      <Stack.Screen name="Auth" component={AuthNavigator} />
-      <Stack.Screen name="ProfileSetup" component={ProfileSetupNavigator} />
-      <Stack.Screen name="MainApp" component={MainNavigator} />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {/* NOT LOGGED IN → Auth flow */}
+      {!isAuthenticated && (
+        <Stack.Screen name="Auth" component={AuthNavigator} />
+      )}
+
+      {/* LOGGED IN BUT PROFILE NOT COMPLETED */}
+      {isAuthenticated && !isProfileComplete && (
+        <Stack.Screen name="ProfileSetup" component={ProfileSetupNavigator} />
+      )}
+
+      {/* LOGGED IN AND PROFILE COMPLETED */}
+      {isAuthenticated && isProfileComplete && (
+        <Stack.Screen name="MainApp" component={MainNavigator} />
+      )}
     </Stack.Navigator>
   );
 }
-

@@ -1,8 +1,7 @@
-import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import WelcomeScreen from '../screens/auth/WelcomeScreen';
-import LoginScreen from '../screens/auth/LoginScreen';
-import OTPScreen from '../screens/auth/OTPScreen';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import WelcomeScreen from "../screens/auth/WelcomeScreen";
+import LoginScreen from "../screens/auth/LoginScreen";
+import OTPScreen from "../screens/auth/OTPScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -19,4 +18,3 @@ export default function AuthNavigator() {
     </Stack.Navigator>
   );
 }
-

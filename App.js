@@ -1,41 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-gesture-handler';
-import AppNavigator from './src/navigation/AppNavigator';
-import { ActivityIndicator, Text, View } from 'react-native';
+import React, { useEffect, useState } from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+import "react-native-gesture-handler";
+import AppNavigator from "./src/navigation/AppNavigator";
+import { ActivityIndicator, Text, View } from "react-native";
+import { AuthProvider, useAuth } from "./src/context/AuthContext";
 
+const MainApp = () => {
+  const { session } = useAuth();
 
-export default function App() {
-
-  const [session, setSession] = useState(
-    {
-      authState: 'pending',
-    }
-  );
-
-  useEffect(() => {
-    setTimeout(() => {
-      setSession({
-        authState: 'unAuthenticated',
-      })
-    }, 2000)
-  }, [])
-
-  if (session.authState === 'pending') {
-    return <View>
-      <Text>Loading...</Text>
-      <ActivityIndicator size="large" color="#0000ff" />
-    </View>
+  if (session.authState === "pending") {
+    return (
+      <View>
+        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
   }
 
   return (
+    <NavigationContainer>
+      <AppNavigator />
+    </NavigationContainer>
+  );
+};
+
+export default function App() {
+  return (
     <>
       <StatusBar style="light" />
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>
+      <AuthProvider>
+        <MainApp />
+      </AuthProvider>
     </>
   );
 }
-

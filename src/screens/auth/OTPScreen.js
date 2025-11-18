@@ -1,15 +1,26 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from '../../styles/colors';
+import React, { useState, useRef } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "../../styles/colors";
+import { useAuth } from "../../context/AuthContext";
 
-export default function OTPScreen({ navigation }) {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+export default function OTPScreen() {
+  const { signin } = useAuth();
+
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
 
   const handleOtpChange = (index, value) => {
     if (value.length > 1) return;
-    
+
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
@@ -20,19 +31,20 @@ export default function OTPScreen({ navigation }) {
   };
 
   const handleKeyPress = (index, key) => {
-    if (key === 'Backspace' && !otp[index] && index > 0) {
+    if (key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
 
   const handleVerify = () => {
-    const otpString = otp.join('');
+    const otpString = otp.join("");
     if (otpString.length === 6) {
-      navigation.navigate('ProfileSetup');
+      signin();
+      // navigation.navigate("ProfileSetup");
     }
   };
 
-  const isOtpComplete = otp.every(digit => digit !== '');
+  const isOtpComplete = otp.every((digit) => digit !== "");
 
   return (
     <LinearGradient
@@ -40,12 +52,14 @@ export default function OTPScreen({ navigation }) {
       style={styles.container}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <View style={styles.content}>
           <Text style={styles.title}>Enter Verification Code</Text>
-          <Text style={styles.subtitle}>We sent a 6-digit code to your phone</Text>
+          <Text style={styles.subtitle}>
+            We sent a 6-digit code to your phone
+          </Text>
 
           <View style={styles.otpContainer}>
             {otp.map((digit, index) => (
@@ -55,7 +69,9 @@ export default function OTPScreen({ navigation }) {
                 style={styles.otpInput}
                 value={digit}
                 onChangeText={(value) => handleOtpChange(index, value)}
-                onKeyPress={({ nativeEvent }) => handleKeyPress(index, nativeEvent.key)}
+                onKeyPress={({ nativeEvent }) =>
+                  handleKeyPress(index, nativeEvent.key)
+                }
                 keyboardType="number-pad"
                 maxLength={1}
                 selectTextOnFocus
@@ -90,26 +106,26 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 32,
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.white,
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
     color: colors.white,
     opacity: 0.9,
     marginBottom: 48,
-    textAlign: 'center',
+    textAlign: "center",
   },
   otpContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 48,
     paddingHorizontal: 8,
   },
@@ -118,16 +134,16 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: colors.white,
     borderRadius: 12,
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 24,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
   },
   button: {
     backgroundColor: colors.white,
     paddingVertical: 18,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 24,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
@@ -141,15 +157,14 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.primary,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   resendButton: {
-    alignItems: 'center',
+    alignItems: "center",
   },
   resendText: {
     color: colors.white,
     fontSize: 16,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
 });
-
