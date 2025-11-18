@@ -1,9 +1,27 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from '../../styles/colors';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "../../styles/colors";
+import {
+  getHealthCheck,
+  useHealthCheck,
+} from "../../api_hooks/health_check.hooks";
 
 export default function WelcomeScreen({ navigation }) {
+  const { data, isLoading, isError } = useHealthCheck();
+
+  const getApiStatus = () => {
+    if (isLoading) {
+      return "Loading...";
+    }
+
+    if (isError) {
+      return "Error...";
+    }
+
+    return data;
+  };
+
   return (
     <LinearGradient
       colors={[colors.gradientStart, colors.gradientEnd]}
@@ -16,11 +34,12 @@ export default function WelcomeScreen({ navigation }) {
           </View>
           <Text style={styles.appName}>Datey</Text>
           <Text style={styles.tagline}>Find your perfect match</Text>
+          <Text style={styles.tagline}>API Status : {getApiStatus()}</Text>
         </View>
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate('Login')}
+          onPress={() => navigation.navigate("Login")}
           activeOpacity={0.8}
         >
           <Text style={styles.buttonText}>Continue with Phone Number</Text>
@@ -36,12 +55,12 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingHorizontal: 32,
   },
   logoContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 80,
   },
   logoPlaceholder: {
@@ -49,8 +68,8 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     backgroundColor: colors.white,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 24,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
@@ -63,7 +82,7 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontSize: 42,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.white,
     marginBottom: 8,
   },
@@ -77,8 +96,8 @@ const styles = StyleSheet.create({
     paddingVertical: 18,
     paddingHorizontal: 48,
     borderRadius: 30,
-    width: '100%',
-    alignItems: 'center',
+    width: "100%",
+    alignItems: "center",
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -88,7 +107,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.primary,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
-

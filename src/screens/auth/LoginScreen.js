@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from '../../styles/colors';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { colors } from "../../styles/colors";
+import { useAuth } from "../../context/AuthContext";
 
 export default function LoginScreen({ navigation }) {
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const { sendOtp } = useAuth();
 
-  const handleContinue = () => {
-    if (phoneNumber.length >= 10) {
-      navigation.navigate('OTP');
-    }
+  const handleContinue = async () => {
+    // if (phoneNumber.length >= 10) {
+    const res = await sendOtp("+917812804856");
+    console.log(res);
+
+    // navigation.navigate('OTP');
+    // }
   };
 
   return (
@@ -18,12 +31,14 @@ export default function LoginScreen({ navigation }) {
       style={styles.container}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <View style={styles.content}>
           <Text style={styles.title}>Enter Your Phone Number</Text>
-          <Text style={styles.subtitle}>We'll send you a verification code</Text>
+          <Text style={styles.subtitle}>
+            We'll send you a verification code
+          </Text>
 
           <View style={styles.inputContainer}>
             <TextInput
@@ -38,9 +53,12 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, phoneNumber.length < 10 && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              // phoneNumber.length < 10 && styles.buttonDisabled,
+            ]}
             onPress={handleContinue}
-            disabled={phoneNumber.length < 10}
+            // disabled={phoneNumber.length < 10}
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>Continue</Text>
@@ -60,22 +78,22 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
     paddingHorizontal: 32,
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.white,
     marginBottom: 12,
-    textAlign: 'center',
+    textAlign: "center",
   },
   subtitle: {
     fontSize: 16,
     color: colors.white,
     opacity: 0.9,
     marginBottom: 48,
-    textAlign: 'center',
+    textAlign: "center",
   },
   inputContainer: {
     marginBottom: 32,
@@ -92,7 +110,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     paddingVertical: 18,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
@@ -105,7 +123,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.primary,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
-

@@ -14,6 +14,8 @@ import { useAuth } from "../../context/AuthContext";
 export default function ProfileScreen({ navigation }) {
   const { session, logout } = useAuth();
 
+  console.log(session);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -30,14 +32,15 @@ export default function ProfileScreen({ navigation }) {
           )}
         </View>
         <Text style={styles.name}>{session?.user?.name}</Text>
-        <Text style={styles.age}>{currentUser.age} years old</Text>
+        <Text style={styles.age}>{session?.user?.age} years old</Text>
       </View>
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>About</Text>
+        <Text style={styles.bio}>{session?.user?.gender}</Text>
         <Text style={styles.bio}>{currentUser.bio}</Text>
       </View>
-
+      {/* Q9tyd@4Rvhf */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Interests</Text>
         <View style={styles.interestsContainer}>

@@ -39,7 +39,9 @@ export default function OTPScreen() {
   const handleVerify = () => {
     const otpString = otp.join("");
     if (otpString.length === 6) {
-      signin();
+      signin({
+        otp: otpString,
+      });
       // navigation.navigate("ProfileSetup");
     }
   };

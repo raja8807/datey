@@ -1,23 +1,44 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { colors } from '../../styles/colors';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { colors } from "../../styles/colors";
+import { useAuth } from "../../context/AuthContext";
 
 export default function BasicInfoScreen({ navigation }) {
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [selectedGender, setSelectedGender] = useState('');
+  const { updateProfile } = useAuth();
 
-  const genders = ['Male', 'Female', 'Other', 'Prefer not to say'];
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [selectedGender, setSelectedGender] = useState("");
+
+  const genders = ["Male", "Female", "Other", "Prefer not to say"];
 
   const handleNext = () => {
     if (name && age && selectedGender) {
-      navigation.navigate('UploadPhotos');
+      handleUpdateProfile();
+      navigation.navigate("UploadPhotos");
     }
+  };
+
+  const handleUpdateProfile = () => {
+    updateProfile({
+      name,
+      age,
+      gender: selectedGender,
+    });
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -75,7 +96,10 @@ export default function BasicInfoScreen({ navigation }) {
           </View>
 
           <TouchableOpacity
-            style={[styles.button, (!name || !age || !selectedGender) && styles.buttonDisabled]}
+            style={[
+              styles.button,
+              (!name || !age || !selectedGender) && styles.buttonDisabled,
+            ]}
             onPress={handleNext}
             disabled={!name || !age || !selectedGender}
             activeOpacity={0.8}
@@ -103,7 +127,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginBottom: 8,
   },
@@ -117,7 +141,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginBottom: 12,
   },
@@ -132,8 +156,8 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   genderContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
   },
   genderButton: {
@@ -153,7 +177,7 @@ const styles = StyleSheet.create({
   genderText: {
     fontSize: 16,
     color: colors.text,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   genderTextSelected: {
     color: colors.white,
@@ -162,7 +186,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: 18,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   buttonDisabled: {
@@ -171,7 +195,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: colors.white,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
-
