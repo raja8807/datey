@@ -1,87 +1,144 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/Supabase";
-// import { createClient } from '@supabase/supabase-js'
+import API from "../config/api.config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState({
     authState: "pending",
+    data: null,
+    user: null,
   });
 
+  const getCurrentUser = () => {
+    return {
+      name: "Raja",
+      gender: "Male",
+      age: "25",
+    };
+  };
+
   useEffect(() => {
+    // ---------- INITIAL SESSION CHECK ----------
     supabase.auth.getSession().then(({ data }) => {
-      console.log("---> auth sessesin", data);
-      setSession({});
+      if (data.session) {
+        const user = getCurrentUser(data.session.user.id);
+
+        setSession({
+          authState: "authenticated",
+          data: data.session,
+          user,
+        });
+      } else {
+        setSession({
+          authState: "unAuthenticated",
+          data: null,
+          user: null,
+        });
+      }
     });
 
+    // ---------- AUTH STATE CHANGE LISTENER ----------
     const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, changedSession) => {
-        console.log("---> auth state change", changedSession);
-        setSession({});
+      async (event, changedSession) => {
+        console.log("AUTH EVENT =", event);
+
+        switch (event) {
+          case "SIGNED_IN":
+          case "TOKEN_REFRESHED":
+          case "USER_UPDATED":
+          case "INITIAL_SESSION":
+            if (changedSession?.user) {
+              const user = getCurrentUser(changedSession.user.id);
+
+              setSession({
+                authState: "authenticated",
+                data: changedSession,
+                user,
+              });
+            } else {
+              setSession({
+                authState: "unAuthenticated",
+                data: null,
+                user: null,
+              });
+            }
+            break;
+
+          case "SIGNED_OUT":
+            setSession({
+              authState: "unAuthenticated",
+              data: null,
+              user: null,
+            });
+            break;
+
+          default:
+            break;
+        }
       }
     );
 
-    return () => authListener.subscription.unsubscribe();
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  const logout = () => {
-    setSession({
-      authState: "unAuthenticated",
-    });
-  };
-
-  const signin = ({ otp }) => {
-    if (otp === "123456") {
-      setSession({
-        authState: "authenticated",
-        user: {
-          name: "Raja",
-        },
-      });
-    } else {
-      setSession({
-        authState: "authenticated",
-        user: null,
-      });
+  // ---------- LOGOUT ----------
+  const logout = async () => {
+    try {
+      console.log("ok--->>");
+      await supabase.auth.signOut();
+      await AsyncStorage.clear();
+    } catch (er) {
+      console.log(er);
     }
   };
 
+  // ---------- UPDATE PROFILE LOCALLY ----------
   const updateProfile = (profile) => {
-    setSession((prev) => {
-      return {
-        ...prev,
-        user: profile,
-      };
-    });
+    setSession((prev) => ({
+      ...prev,
+      user: profile,
+    }));
   };
 
-  async function sendOtp(phone) {
-    const { data, error } = await supabase.auth.signInWithOtp({
-      phone,
+  // ---------- OTP SEND ----------
+  const sendOtp = async ({ phone }) => {
+    try {
+      const response = await API.post("/api/auth/otp/send", { phone });
+      return response.data;
+    } catch (error) {
+      console.log("GET Error:", error);
+      throw error;
+    }
+  };
+
+  // ---------- OTP VERIFY ----------
+  // (kept exactly as you wrote it)
+  const verifyOtp = async ({ phone, otp }) => {
+    console.log(otp);
+
+    const res = await supabase.auth.verifyOtp({
+      type: "magiclink",
+      token: otp,
+      email: `91${phone}@datey.app`,
     });
 
-    console.log("data--->", data);
-    console.log("error--->", error);
-
-    if (error) throw error;
-    return data;
-  }
-
-  async function verifyOtp(phone, token) {
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone,
-      token,
-      type: "sms",
-    });
-
-    if (error) throw error;
-    return data.session;
-  }
+    console.log(res);
+  };
 
   return (
     <AuthContext.Provider
-      value={{ session, logout, signin, updateProfile, sendOtp, verifyOtp }}
+      value={{
+        session,
+        logout,
+        updateProfile,
+        sendOtp,
+        verifyOtp,
+      }}
     >
       {children}
     </AuthContext.Provider>

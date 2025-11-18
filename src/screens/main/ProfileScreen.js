@@ -14,8 +14,6 @@ import { useAuth } from "../../context/AuthContext";
 export default function ProfileScreen({ navigation }) {
   const { session, logout } = useAuth();
 
-  console.log(session);
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -54,7 +52,7 @@ export default function ProfileScreen({ navigation }) {
 
       <TouchableOpacity
         style={styles.editButton}
-        onPress={() => {}}
+        onPress={logout}
         activeOpacity={0.8}
       >
         <Text style={styles.editButtonText} onPress={logout}>

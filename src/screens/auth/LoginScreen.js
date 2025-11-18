@@ -10,18 +10,24 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../styles/colors";
-import { useAuth } from "../../context/AuthContext";
+import { useSendOtp } from "../../api_hooks/auth_hooks/auth.hooks";
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen({ navigation, route }) {
+  const { setTempOtp } = route.params;
+
   const [phoneNumber, setPhoneNumber] = useState("");
-  const { sendOtp } = useAuth();
+
+  const { mutateAsync, isPending } = useSendOtp();
 
   const handleContinue = async () => {
-    // if (phoneNumber.length >= 10) {
-    // const res = await sendOtp("+917812804856");
-    // console.log(res);
-    navigation.navigate("OTP");
-    // }
+    const res = await mutateAsync({
+      phone: "7812804856",
+    });
+
+    if (res.otp) {
+      setTempOtp(res.otp);
+      navigation.navigate("OTP");
+    }
   };
 
   return (
@@ -60,7 +66,9 @@ export default function LoginScreen({ navigation }) {
             // disabled={phoneNumber.length < 10}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Continue</Text>
+            <Text style={styles.buttonText}>
+              {isPending ? "Loading.." : "Continue"}
+            </Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

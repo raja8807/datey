@@ -11,11 +11,13 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../styles/colors";
 import { useAuth } from "../../context/AuthContext";
+import { useVerifyOtp } from "../../api_hooks/auth_hooks/auth.hooks";
 
-export default function OTPScreen() {
-  const { signin } = useAuth();
+export default function OTPScreen({ tempOtp }) {
+  const { mutateAsync: verifyOtpAsync, isPending } = useVerifyOtp();
 
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  // const [otp, setOtp] = useState(["", "", "", "", "", "", "", ""]);
+  const [otp, setOtp] = useState(tempOtp.split(""));
   const inputRefs = useRef([]);
 
   const handleOtpChange = (index, value) => {
@@ -25,7 +27,7 @@ export default function OTPScreen() {
     newOtp[index] = value;
     setOtp(newOtp);
 
-    if (value && index < 5) {
+    if (value && index < 78) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -36,14 +38,11 @@ export default function OTPScreen() {
     }
   };
 
-  const handleVerify = () => {
-    const otpString = otp.join("");
-    if (otpString.length === 6) {
-      signin({
-        otp: otpString,
-      });
-      // navigation.navigate("ProfileSetup");
-    }
+  const handleVerify = async () => {
+    await verifyOtpAsync({
+      phone: "7812804856",
+      otp: otp.join(""),
+    });
   };
 
   const isOtpComplete = otp.every((digit) => digit !== "");
@@ -62,6 +61,7 @@ export default function OTPScreen() {
           <Text style={styles.subtitle}>
             We sent a 6-digit code to your phone
           </Text>
+          <Text style={styles.subtitle}>Otp is {tempOtp}</Text>
 
           <View style={styles.otpContainer}>
             {otp.map((digit, index) => (
@@ -84,10 +84,12 @@ export default function OTPScreen() {
           <TouchableOpacity
             style={[styles.button, !isOtpComplete && styles.buttonDisabled]}
             onPress={handleVerify}
-            disabled={!isOtpComplete}
+            // disabled={!isOtpComplete}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Verify</Text>
+            <Text style={styles.buttonText}>
+              {isPending ? "Loading.." : "Verify"}
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.resendButton}>
@@ -132,13 +134,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   otpInput: {
-    width: 50,
-    height: 60,
+    width: 35,
+    height: 50,
     backgroundColor: colors.white,
     borderRadius: 12,
     textAlign: "center",
     fontSize: 24,
-    fontWeight: "600",
+    // fontWeight: "600",
     color: colors.text,
   },
   button: {
