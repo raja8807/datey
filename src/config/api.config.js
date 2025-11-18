@@ -1,7 +1,11 @@
 import axios from "axios";
 
+import Constants from "expo-constants";
+
+const { API_URL } = Constants.expoConfig.extra;
+
 const API = axios.create({
-  baseURL: "url", // Replace with your backend URL
+  baseURL: API_URL, // Replace with your backend URL
   timeout: 10000,
 });
 

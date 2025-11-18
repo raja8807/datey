@@ -2,13 +2,13 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../styles/colors";
-import {
-  getHealthCheck,
-  useHealthCheck,
-} from "../../api_hooks/health_check.hooks";
+import { useHealthCheck } from "../../api_hooks/health_check.hooks";
+import Constants from "expo-constants";
 
 export default function WelcomeScreen({ navigation }) {
   const { data, isLoading, isError } = useHealthCheck();
+
+  const { API_URL } = Constants.expoConfig.extra;
 
   const getApiStatus = () => {
     if (isLoading) {
@@ -33,7 +33,8 @@ export default function WelcomeScreen({ navigation }) {
             <Text style={styles.logoText}>💕</Text>
           </View>
           <Text style={styles.appName}>Datey</Text>
-          <Text style={styles.tagline}>Find your perfect match</Text>
+          {/* <Text style={styles.tagline}>Find your perfect match</Text> */}
+          <Text style={styles.tagline}>API : URL {API_URL}</Text>
           <Text style={styles.tagline}>API Status : {getApiStatus()}</Text>
         </View>
 

@@ -1,4 +1,7 @@
 {
+  "cli": {
+    "version": ">= 5.0.0"
+  },
   "build": {
     "preview": {
       "distribution": "internal",
@@ -7,6 +10,9 @@
       },
       "ios": {
         "simulator": false
+      },
+      "env": {
+        "API_URL": "https://datey-api.vercel.app"
       }
     },
     "production": {
@@ -15,6 +21,9 @@
       },
       "ios": {
         "simulator": false
+      },
+      "env": {
+        "API_URL": "https://datey-api.vercel.app"
       }
     }
   },

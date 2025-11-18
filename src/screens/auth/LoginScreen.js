@@ -18,10 +18,9 @@ export default function LoginScreen({ navigation }) {
 
   const handleContinue = async () => {
     // if (phoneNumber.length >= 10) {
-    const res = await sendOtp("+917812804856");
-    console.log(res);
-
-    // navigation.navigate('OTP');
+    // const res = await sendOtp("+917812804856");
+    // console.log(res);
+    navigation.navigate("OTP");
     // }
   };
 

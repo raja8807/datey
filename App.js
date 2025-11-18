@@ -14,7 +14,6 @@ const MainApp = () => {
   if (session.authState === "pending") {
     return (
       <View>
-        <Text>Loading...</Text>
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
