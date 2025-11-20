@@ -10,10 +10,9 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../styles/colors";
-import { useAuth } from "../../context/AuthContext";
 import { useVerifyOtp } from "../../api_hooks/auth_hooks/auth.hooks";
 
-export default function OTPScreen({ tempOtp }) {
+export default function OTPScreen({ tempOtp, phoneNumber }) {
   const { mutateAsync: verifyOtpAsync, isPending } = useVerifyOtp();
 
   // const [otp, setOtp] = useState(["", "", "", "", "", "", "", ""]);
@@ -40,7 +39,7 @@ export default function OTPScreen({ tempOtp }) {
 
   const handleVerify = async () => {
     await verifyOtpAsync({
-      phone: "7812804856",
+      phone: phoneNumber,
       otp: otp.join(""),
     });
   };
@@ -59,7 +58,7 @@ export default function OTPScreen({ tempOtp }) {
         <View style={styles.content}>
           <Text style={styles.title}>Enter Verification Code</Text>
           <Text style={styles.subtitle}>
-            We sent a 6-digit code to your phone
+            We sent a 8-digit code to {phoneNumber}
           </Text>
           <Text style={styles.subtitle}>Otp is {tempOtp}</Text>
 

@@ -13,23 +13,23 @@ import { colors } from "../../styles/colors";
 import { useAuth } from "../../context/AuthContext";
 
 export default function BasicInfoScreen({ navigation }) {
-  const { updateProfile } = useAuth();
+  const { updateProfile, session } = useAuth();
 
-  const [name, setName] = useState("");
-  const [age, setAge] = useState("");
-  const [selectedGender, setSelectedGender] = useState("");
+  const [name, setName] = useState("Test 1");
+  const [age, setAge] = useState("25");
+  const [selectedGender, setSelectedGender] = useState("Other");
 
   const genders = ["Male", "Female", "Other", "Prefer not to say"];
 
-  const handleNext = () => {
-    if (name && age && selectedGender) {
-      handleUpdateProfile();
-      navigation.navigate("UploadPhotos");
-    }
-  };
+  // const handleNext = () => {
+  //   if (name && age && selectedGender) {
+  //     handleUpdateProfile();
+  //     navigation.navigate("UploadPhotos");
+  //   }
+  // };
 
-  const handleUpdateProfile = () => {
-    updateProfile({
+  const handleUpdateProfile = async () => {
+    await updateProfile({
       name,
       age,
       gender: selectedGender,
@@ -100,8 +100,8 @@ export default function BasicInfoScreen({ navigation }) {
               styles.button,
               (!name || !age || !selectedGender) && styles.buttonDisabled,
             ]}
-            onPress={handleNext}
-            disabled={!name || !age || !selectedGender}
+            onPress={handleUpdateProfile}
+            // disabled={!name || !age || !selectedGender}
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>Next</Text>

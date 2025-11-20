@@ -2,6 +2,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "../lib/Supabase";
 import API from "../config/api.config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  getCurrentUser,
+  updateCurrentUser,
+} from "../api_hooks/user_hooks/user.hooks";
 
 const AuthContext = createContext();
 
@@ -12,20 +16,11 @@ export function AuthProvider({ children }) {
     user: null,
   });
 
-  const getCurrentUser = () => {
-    return {
-      name: "Raja",
-      gender: "Male",
-      age: "25",
-    };
-  };
-
   useEffect(() => {
     // ---------- INITIAL SESSION CHECK ----------
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       if (data.session) {
-        const user = getCurrentUser(data.session.user.id);
-
+        const user = await getCurrentUser();
         setSession({
           authState: "authenticated",
           data: data.session,
@@ -43,7 +38,7 @@ export function AuthProvider({ children }) {
     // ---------- AUTH STATE CHANGE LISTENER ----------
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, changedSession) => {
-        console.log("AUTH EVENT =", event);
+        console.log("AUTH EVENT ====>", event);
 
         switch (event) {
           case "SIGNED_IN":
@@ -51,7 +46,8 @@ export function AuthProvider({ children }) {
           case "USER_UPDATED":
           case "INITIAL_SESSION":
             if (changedSession?.user) {
-              const user = getCurrentUser(changedSession.user.id);
+              const user = await getCurrentUser();
+              console.log(user);
 
               setSession({
                 authState: "authenticated",
@@ -89,7 +85,6 @@ export function AuthProvider({ children }) {
   // ---------- LOGOUT ----------
   const logout = async () => {
     try {
-      console.log("ok--->>");
       await supabase.auth.signOut();
       await AsyncStorage.clear();
     } catch (er) {
@@ -98,11 +93,34 @@ export function AuthProvider({ children }) {
   };
 
   // ---------- UPDATE PROFILE LOCALLY ----------
-  const updateProfile = (profile) => {
-    setSession((prev) => ({
-      ...prev,
-      user: profile,
-    }));
+
+  async function refreshAuth() {
+    const { data: sessionData } = await supabase.auth.getSession();
+
+    if (!sessionData?.session) return null;
+
+    const refreshToken = sessionData.session.refresh_token;
+
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: refreshToken,
+    });
+
+    if (error) {
+      console.error("Refresh error:", error);
+      return null;
+    }
+
+    return data.session;
+  }
+
+  const updateProfile = async (updatedUser) => {
+    const res = await updateCurrentUser(updatedUser);
+    setSession((prev) => {
+      return {
+        ...prev,
+        user: res,
+      };
+    });
   };
 
   // ---------- OTP SEND ----------
@@ -119,15 +137,11 @@ export function AuthProvider({ children }) {
   // ---------- OTP VERIFY ----------
   // (kept exactly as you wrote it)
   const verifyOtp = async ({ phone, otp }) => {
-    console.log(otp);
-
     const res = await supabase.auth.verifyOtp({
       type: "magiclink",
       token: otp,
       email: `91${phone}@datey.app`,
     });
-
-    console.log(res);
   };
 
   return (

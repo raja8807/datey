@@ -8,8 +8,7 @@ const Stack = createNativeStackNavigator();
 
 export default function AuthNavigator() {
   const [tempOtp, setTempOtp] = useState(null);
-
-  console.log(tempOtp);
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   return (
     <Stack.Navigator
@@ -18,17 +17,23 @@ export default function AuthNavigator() {
       }}
     >
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        initialParams={{ setTempOtp }}
-      />
-      <Stack.Screen
-        name="OTP"
-        component={(props) => {
-          return <OTPScreen props={props} tempOtp={tempOtp} />;
-        }}
-      />
+
+      <Stack.Screen name="Login">
+        {(props) => (
+          <LoginScreen
+            {...props}
+            phoneNumber={phoneNumber}
+            setPhoneNumber={setPhoneNumber}
+            setTempOtp={setTempOtp}
+          />
+        )}
+      </Stack.Screen>
+
+      <Stack.Screen name="OTP">
+        {(props) => (
+          <OTPScreen {...props} tempOtp={tempOtp} phoneNumber={phoneNumber} />
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 }

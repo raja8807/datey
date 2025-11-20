@@ -12,16 +12,19 @@ import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../styles/colors";
 import { useSendOtp } from "../../api_hooks/auth_hooks/auth.hooks";
 
-export default function LoginScreen({ navigation, route }) {
-  const { setTempOtp } = route.params;
-
-  const [phoneNumber, setPhoneNumber] = useState("");
+export default function LoginScreen({
+  navigation,
+  setTempOtp,
+  phoneNumber,
+  setPhoneNumber,
+}) {
+  const [] = useState("");
 
   const { mutateAsync, isPending } = useSendOtp();
 
   const handleContinue = async () => {
     const res = await mutateAsync({
-      phone: "7812804856",
+      phone: phoneNumber,
     });
 
     if (res.otp) {
