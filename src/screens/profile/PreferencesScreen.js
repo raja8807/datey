@@ -1,30 +1,65 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { colors } from '../../styles/colors';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { colors } from "../../styles/colors";
+import { useFetchInterests } from "../../api_hooks/interest_hooks/interest.hooks";
+import { useAuth } from "../../context/AuthContext";
+import { GENDERS } from "../../constants/constants";
 
 export default function PreferencesScreen({ navigation }) {
-  const [ageRange, setAgeRange] = useState([18, 35]);
+  const [ageRange, setAgeRange] = useState([18, 23]);
+
   const [distance, setDistance] = useState(25);
+
   const [selectedInterests, setSelectedInterests] = useState([]);
 
-  const interests = [
-    'Travel', 'Photography', 'Coffee', 'Yoga', 'Fitness',
-    'Food', 'Music', 'Dancing', 'Reading', 'Hiking',
-    'Nature', 'Art', 'Concerts', 'Guitar', 'Writing',
-    'Dogs', 'Adventure', 'Camping', 'Wellness', 'Meditation',
-    'Cooking', 'Movies', 'Gaming', 'Sports', 'Technology',
-  ];
+  const { data: interests, isLoading } = useFetchInterests();
+
+  const { session, updateProfile } = useAuth();
+
+  const getInitialInterestedGender = () => {
+    switch (session.user.gender) {
+      case "Male":
+        return "Female";
+      case "Female":
+        return "Male";
+      case "Other":
+        return "Other";
+    }
+
+    return "Any";
+  };
+
+  const [interestedGender, setInterestedGender] = useState(
+    getInitialInterestedGender()
+  );
 
   const toggleInterest = (interest) => {
     if (selectedInterests.includes(interest)) {
-      setSelectedInterests(selectedInterests.filter(i => i !== interest));
+      setSelectedInterests(
+        selectedInterests.filter((i) => i.id !== interest.id)
+      );
     } else {
       setSelectedInterests([...selectedInterests, interest]);
     }
   };
 
-  const handleComplete = () => {
-    navigation.navigate('MainApp');
+  const handleComplete = async () => {
+    await updateProfile({
+      ...session.user,
+      interests: selectedInterests,
+      preferences: {
+        age_range_start: ageRange[0],
+        age_range_end: ageRange[1],
+        max_distance: distance,
+        interested_gender: interestedGender,
+      },
+    });
   };
 
   return (
@@ -32,50 +67,86 @@ export default function PreferencesScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.content}>
           <Text style={styles.title}>Set Your Preferences</Text>
-          <Text style={styles.subtitle}>Help us find better matches for you</Text>
+          <Text style={styles.subtitle}>
+            Help us find better matches for you
+          </Text>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Age Range</Text>
             <View style={styles.rangeContainer}>
-              <View style={styles.rangeValue}>
-                <Text style={styles.rangeText}>{ageRange[0]}</Text>
+              <View style={styles.rangeButtons}>
+                <TouchableOpacity
+                  style={styles.rangeButton}
+                  onPress={() =>
+                    setAgeRange((prev) => {
+                      const newAgeRange = [...prev];
+                      if (newAgeRange[0] > 18) {
+                        newAgeRange[0] = newAgeRange[0] - 1;
+                        newAgeRange[1] = newAgeRange[0] + 5;
+                      }
+                      return newAgeRange;
+                    })
+                  }
+                >
+                  <Text style={styles.rangeButtonText}>-</Text>
+                </TouchableOpacity>
+                <View style={styles.rangeValue}>
+                  <Text style={styles.rangeText}>{ageRange[0]}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.rangeButton}
+                  onPress={() =>
+                    setAgeRange((prev) => {
+                      const newAgeRange = [...prev];
+                      newAgeRange[0] = newAgeRange[0] + 1;
+                      newAgeRange[1] = newAgeRange[0] + 5;
+                      return newAgeRange;
+                    })
+                  }
+                >
+                  <Text style={styles.rangeButtonText}>+</Text>
+                </TouchableOpacity>
               </View>
-              <Text style={styles.rangeSeparator}>-</Text>
-              <View style={styles.rangeValue}>
-                <Text style={styles.rangeText}>{ageRange[1]}</Text>
+
+              <View style={styles.rangeButtons}>
+                <TouchableOpacity
+                  style={styles.rangeButton}
+                  onPress={() =>
+                    setAgeRange((prev) => {
+                      const newAgeRange = [...prev];
+                      if (newAgeRange[1] > newAgeRange[0] + 2) {
+                        newAgeRange[1] = newAgeRange[1] - 1;
+                      }
+                      return newAgeRange;
+                    })
+                  }
+                >
+                  <Text style={styles.rangeButtonText}>-</Text>
+                </TouchableOpacity>
+                <View style={styles.rangeValue}>
+                  <Text style={styles.rangeText}>{ageRange[1]}</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.rangeButton}
+                  onPress={() =>
+                    setAgeRange((prev) => {
+                      const newAgeRange = [...prev];
+
+                      newAgeRange[1] = newAgeRange[1] + 1;
+
+                      return newAgeRange;
+                    })
+                  }
+                >
+                  <Text style={styles.rangeButtonText}>+</Text>
+                </TouchableOpacity>
               </View>
-            </View>
-            <View style={styles.sliderContainer}>
-              <View style={styles.sliderTrack}>
-                <View style={[styles.sliderFill, { width: `${((ageRange[1] - ageRange[0]) / 50) * 100}%` }]} />
-              </View>
-            </View>
-            <View style={styles.rangeButtons}>
-              <TouchableOpacity
-                style={styles.rangeButton}
-                onPress={() => setAgeRange([Math.max(18, ageRange[0] - 1), ageRange[1]])}
-              >
-                <Text style={styles.rangeButtonText}>-</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.rangeButton}
-                onPress={() => setAgeRange([ageRange[0], Math.min(65, ageRange[1] + 1)])}
-              >
-                <Text style={styles.rangeButtonText}>+</Text>
-              </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Maximum Distance</Text>
-            <View style={styles.distanceContainer}>
-              <Text style={styles.distanceValue}>{distance} km</Text>
-            </View>
-            <View style={styles.sliderContainer}>
-              <View style={styles.sliderTrack}>
-                <View style={[styles.sliderFill, { width: `${(distance / 100) * 100}%` }]} />
-              </View>
-            </View>
+
             <View style={styles.rangeButtons}>
               <TouchableOpacity
                 style={styles.rangeButton}
@@ -83,6 +154,9 @@ export default function PreferencesScreen({ navigation }) {
               >
                 <Text style={styles.rangeButtonText}>-</Text>
               </TouchableOpacity>
+              <View style={styles.distanceContainer}>
+                <Text style={styles.distanceValue}>{distance} km</Text>
+              </View>
               <TouchableOpacity
                 style={styles.rangeButton}
                 onPress={() => setDistance(Math.min(100, distance + 5))}
@@ -90,29 +164,70 @@ export default function PreferencesScreen({ navigation }) {
                 <Text style={styles.rangeButtonText}>+</Text>
               </TouchableOpacity>
             </View>
+
+            <View style={styles.sliderContainer}>
+              <View style={styles.sliderTrack}>
+                <View
+                  style={[
+                    styles.sliderFill,
+                    { width: `${(distance / 100) * 100}%` },
+                  ]}
+                />
+              </View>
+            </View>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Interests</Text>
             <Text style={styles.sectionSubtitle}>Select your interests</Text>
             <View style={styles.interestsContainer}>
-              {interests.map((interest) => (
+              {interests &&
+                interests.map((interest) => (
+                  <TouchableOpacity
+                    key={interest.id}
+                    style={[
+                      styles.interestPill,
+                      selectedInterests.includes(interest) &&
+                        styles.interestPillSelected,
+                    ]}
+                    onPress={() => toggleInterest(interest)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.interestText,
+                        selectedInterests.includes(interest) &&
+                          styles.interestTextSelected,
+                      ]}
+                    >
+                      {interest?.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Looking For</Text>
+            {/* <Text style={styles.sectionSubtitle}>Select your interests</Text> */}
+            <View style={styles.interestsContainer}>
+              {[...GENDERS, "Any"].map((gender) => (
                 <TouchableOpacity
-                  key={interest}
+                  key={gender}
                   style={[
                     styles.interestPill,
-                    selectedInterests.includes(interest) && styles.interestPillSelected,
+                    interestedGender == gender && styles.interestPillSelected,
                   ]}
-                  onPress={() => toggleInterest(interest)}
+                  onPress={() => setInterestedGender(gender)}
                   activeOpacity={0.7}
                 >
                   <Text
                     style={[
                       styles.interestText,
-                      selectedInterests.includes(interest) && styles.interestTextSelected,
+                      interestedGender == gender && styles.interestTextSelected,
                     ]}
                   >
-                    {interest}
+                    {gender}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -148,7 +263,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.text,
     marginBottom: 8,
   },
@@ -162,7 +277,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.text,
     marginBottom: 8,
   },
@@ -172,9 +287,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   rangeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: 16,
   },
   rangeValue: {
@@ -183,11 +298,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 20,
     minWidth: 60,
-    alignItems: 'center',
+    alignItems: "center",
   },
   rangeText: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     color: colors.white,
   },
   rangeSeparator: {
@@ -202,16 +317,16 @@ const styles = StyleSheet.create({
     height: 8,
     backgroundColor: colors.border,
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   sliderFill: {
-    height: '100%',
+    height: "100%",
     backgroundColor: colors.primary,
     borderRadius: 4,
   },
   rangeButtons: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 16,
   },
   rangeButton: {
@@ -219,26 +334,26 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     backgroundColor: colors.backgroundDark,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   rangeButtonText: {
     fontSize: 24,
     color: colors.text,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   distanceContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 16,
   },
   distanceValue: {
     fontSize: 32,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     color: colors.primary,
   },
   interestsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 12,
     marginTop: 8,
   },
@@ -259,7 +374,7 @@ const styles = StyleSheet.create({
   interestText: {
     fontSize: 14,
     color: colors.text,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   interestTextSelected: {
     color: colors.white,
@@ -268,13 +383,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: 18,
     borderRadius: 30,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 20,
   },
   buttonText: {
     color: colors.white,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
-

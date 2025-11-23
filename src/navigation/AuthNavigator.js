@@ -31,7 +31,12 @@ export default function AuthNavigator() {
 
       <Stack.Screen name="OTP">
         {(props) => (
-          <OTPScreen {...props} tempOtp={tempOtp} phoneNumber={phoneNumber} />
+          <OTPScreen
+            {...props}
+            tempOtp={tempOtp}
+            phoneNumber={phoneNumber}
+            setTempOtp={setTempOtp}
+          />
         )}
       </Stack.Screen>
     </Stack.Navigator>

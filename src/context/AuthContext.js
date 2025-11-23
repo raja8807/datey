@@ -16,6 +16,8 @@ export function AuthProvider({ children }) {
     user: null,
   });
 
+  console.log(session.user);
+
   useEffect(() => {
     // ---------- INITIAL SESSION CHECK ----------
     supabase.auth.getSession().then(async ({ data }) => {
@@ -47,7 +49,6 @@ export function AuthProvider({ children }) {
           case "INITIAL_SESSION":
             if (changedSession?.user) {
               const user = await getCurrentUser();
-              console.log(user);
 
               setSession({
                 authState: "authenticated",
@@ -95,11 +96,7 @@ export function AuthProvider({ children }) {
   // ---------- UPDATE PROFILE LOCALLY ----------
 
   async function refreshAuth() {
-    const { data: sessionData } = await supabase.auth.getSession();
-
-    if (!sessionData?.session) return null;
-
-    const refreshToken = sessionData.session.refresh_token;
+    const refreshToken = session.data.refresh_token;
 
     const { data, error } = await supabase.auth.refreshSession({
       refresh_token: refreshToken,
@@ -113,20 +110,18 @@ export function AuthProvider({ children }) {
     return data.session;
   }
 
-  const updateProfile = async (updatedUser) => {
-    const res = await updateCurrentUser(updatedUser);
-    setSession((prev) => {
-      return {
-        ...prev,
-        user: res,
-      };
-    });
+  const updateProfile = async (usertoUpdate) => {
+    const res = await updateCurrentUser(usertoUpdate);
+    if (res) {
+      await refreshAuth();
+    }
   };
 
   // ---------- OTP SEND ----------
   const sendOtp = async ({ phone }) => {
     try {
       const response = await API.post("/api/auth/otp/send", { phone });
+
       return response.data;
     } catch (error) {
       console.log("GET Error:", error);
@@ -140,8 +135,10 @@ export function AuthProvider({ children }) {
     const res = await supabase.auth.verifyOtp({
       type: "magiclink",
       token: otp,
-      email: `91${phone}@datey.app`,
+      email: `${phone}@datey.app`,
     });
+
+    alert(JSON.stringify(res));
   };
 
   return (

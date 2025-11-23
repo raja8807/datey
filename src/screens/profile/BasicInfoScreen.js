@@ -11,22 +11,16 @@ import {
 } from "react-native";
 import { colors } from "../../styles/colors";
 import { useAuth } from "../../context/AuthContext";
+import { GENDERS } from "../../constants/constants";
 
 export default function BasicInfoScreen({ navigation }) {
-  const { updateProfile, session } = useAuth();
+  const { updateProfile, logout, session } = useAuth();
 
-  const [name, setName] = useState("Test 1");
-  const [age, setAge] = useState("25");
-  const [selectedGender, setSelectedGender] = useState("Other");
-
-  const genders = ["Male", "Female", "Other", "Prefer not to say"];
-
-  // const handleNext = () => {
-  //   if (name && age && selectedGender) {
-  //     handleUpdateProfile();
-  //     navigation.navigate("UploadPhotos");
-  //   }
-  // };
+  const [name, setName] = useState(session?.user?.name || "Test 1");
+  const [age, setAge] = useState(session?.user?.age?.toString?.() || "");
+  const [selectedGender, setSelectedGender] = useState(
+    session?.user?.gender || ""
+  );
 
   const handleUpdateProfile = async () => {
     await updateProfile({
@@ -72,7 +66,7 @@ export default function BasicInfoScreen({ navigation }) {
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Gender</Text>
             <View style={styles.genderContainer}>
-              {genders.map((gender) => (
+              {[...GENDERS, "Prefer not to say"].map((gender) => (
                 <TouchableOpacity
                   key={gender}
                   style={[
@@ -105,6 +99,14 @@ export default function BasicInfoScreen({ navigation }) {
             activeOpacity={0.8}
           >
             <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.button]}
+            onPress={logout}
+            // disabled={!name || !age || !selectedGender}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

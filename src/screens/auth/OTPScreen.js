@@ -10,13 +10,30 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "../../styles/colors";
-import { useVerifyOtp } from "../../api_hooks/auth_hooks/auth.hooks";
+import {
+  useSendOtp,
+  useVerifyOtp,
+} from "../../api_hooks/auth_hooks/auth.hooks";
+import { useAuth } from "../../context/AuthContext";
 
-export default function OTPScreen({ tempOtp, phoneNumber }) {
+export default function OTPScreen({ tempOtp, phoneNumber, setTempOtp }) {
   const { mutateAsync: verifyOtpAsync, isPending } = useVerifyOtp();
+  const [otp, setOtp] = useState(tempOtp.split(""));
+
+  const { mutateAsync } = useSendOtp();
+
+  const handleSendOtp = async () => {
+    const res = await mutateAsync({
+      phone: phoneNumber,
+    });
+
+    if (res.otp) {
+      setTempOtp(res.otp);
+      setOtp(res.otp.split(""));
+    }
+  };
 
   // const [otp, setOtp] = useState(["", "", "", "", "", "", "", ""]);
-  const [otp, setOtp] = useState(tempOtp.split(""));
   const inputRefs = useRef([]);
 
   const handleOtpChange = (index, value) => {
@@ -91,7 +108,7 @@ export default function OTPScreen({ tempOtp, phoneNumber }) {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.resendButton}>
+          <TouchableOpacity style={styles.resendButton} onPress={handleSendOtp}>
             <Text style={styles.resendText}>Resend Code</Text>
           </TouchableOpacity>
         </View>

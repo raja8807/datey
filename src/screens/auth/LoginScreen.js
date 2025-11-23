@@ -18,11 +18,9 @@ export default function LoginScreen({
   phoneNumber,
   setPhoneNumber,
 }) {
-  const [] = useState("");
-
   const { mutateAsync, isPending } = useSendOtp();
 
-  const handleContinue = async () => {
+  const handleSendOtp = async () => {
     const res = await mutateAsync({
       phone: phoneNumber,
     });
@@ -65,7 +63,7 @@ export default function LoginScreen({
               styles.button,
               // phoneNumber.length < 10 && styles.buttonDisabled,
             ]}
-            onPress={handleContinue}
+            onPress={handleSendOtp}
             // disabled={phoneNumber.length < 10}
             activeOpacity={0.8}
           >

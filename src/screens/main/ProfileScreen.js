@@ -14,6 +14,8 @@ import { useAuth } from "../../context/AuthContext";
 export default function ProfileScreen({ navigation }) {
   const { session, logout } = useAuth();
 
+  console.log(session.data.user);
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -31,6 +33,7 @@ export default function ProfileScreen({ navigation }) {
         </View>
         <Text style={styles.name}>{session?.user?.name}</Text>
         <Text style={styles.age}>{session?.user?.age} years old</Text>
+        <Text style={styles.age}>{session?.user?.phone}</Text>
       </View>
 
       <View style={styles.section}>
@@ -42,9 +45,9 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Interests</Text>
         <View style={styles.interestsContainer}>
-          {currentUser.interests.map((interest, index) => (
-            <View key={index} style={styles.interestTag}>
-              <Text style={styles.interestText}>{interest}</Text>
+          {session.user.interest_details.map((interest, index) => (
+            <View key={interest.id} style={styles.interestTag}>
+              <Text style={styles.interestText}>{interest?.name}</Text>
             </View>
           ))}
         </View>

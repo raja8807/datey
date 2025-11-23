@@ -11,7 +11,16 @@ export default function AppNavigator() {
   const { session } = useAuth();
 
   const isAuthenticated = session?.authState === "authenticated";
-  const isProfileComplete = !!session?.user;
+
+  const getIsProfileCompleted = () => {
+    if (!!session?.user && !!session?.user?.interests?.[0]) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const isProfileComplete = getIsProfileCompleted();
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
